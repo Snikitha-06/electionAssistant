@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Process Assistant — Your Interactive Guide to Democracy</title>
+    <meta name="description" content="An interactive AI-powered assistant that helps you understand the election process, timelines, quiz yourself, explore glossary terms, and compare world democracies.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- HERO / HEADER                              -->
+<!-- ═══════════════════════════════════════════ -->
+<header class="hero" id="hero">
+    <div class="hero__particles" id="particles"></div>
+    <div class="hero__content">
+        <div class="hero__badge">🗳️ AI-Powered</div>
+        <h1 class="hero__title">
+            <span class="hero__title-line">Election Process</span>
+            <span class="hero__title-accent">Assistant</span>
+        </h1>
+        <p class="hero__subtitle">Understand democracy through interactive timelines, quizzes, and global comparisons</p>
+        <div class="hero__stats">
+            <div class="hero__stat">
+                <span class="hero__stat-number">8</span>
+                <span class="hero__stat-label">Timeline Stages</span>
+            </div>
+            <div class="hero__stat">
+                <span class="hero__stat-number">15</span>
+                <span class="hero__stat-label">Glossary Terms</span>
+            </div>
+            <div class="hero__stat">
+                <span class="hero__stat-number">4</span>
+                <span class="hero__stat-label">Countries</span>
+            </div>
+            <div class="hero__stat">
+                <span class="hero__stat-number">5</span>
+                <span class="hero__stat-label">Quiz Questions</span>
+            </div>
+        </div>
+    </div>
+    <div class="hero__scroll-indicator">
+        <span>Explore</span>
+        <div class="hero__scroll-arrow">↓</div>
+    </div>
+</header>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- NAVIGATION TABS                            -->
+<!-- ═══════════════════════════════════════════ -->
+<nav class="tabs" id="tabs">
+    <div class="tabs__container">
+        <button class="tabs__btn active" data-tab="timeline" id="tab-timeline">
+            <span class="tabs__icon">📅</span>
+            <span class="tabs__label">Timeline</span>
+        </button>
+        <button class="tabs__btn" data-tab="quiz" id="tab-quiz">
+            <span class="tabs__icon">🧠</span>
+            <span class="tabs__label">Quiz</span>
+        </button>
+        <button class="tabs__btn" data-tab="glossary" id="tab-glossary">
+            <span class="tabs__icon">📖</span>
+            <span class="tabs__label">Glossary</span>
+        </button>
+        <button class="tabs__btn" data-tab="compare" id="tab-compare">
+            <span class="tabs__icon">🌍</span>
+            <span class="tabs__label">World Compare</span>
+        </button>
+        <button class="tabs__btn" data-tab="ask" id="tab-ask">
+            <span class="tabs__icon">💬</span>
+            <span class="tabs__label">Ask Anything</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: TIMELINE                          -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section section--active" id="section-timeline">
+    <div class="section__header">
+        <h2 class="section__title">Election Timeline</h2>
+        <p class="section__desc">Follow the 8 key stages from candidate declaration to inauguration. Click any stage to expand.</p>
+    </div>
+    <div class="timeline" id="timeline-container">
+        {% for stage in timeline %}
+        <div class="timeline__item" data-stage="{{ stage.id }}">
+            <div class="timeline__marker">
+                <span class="timeline__number">{{ stage.id }}</span>
+            </div>
+            <div class="timeline__card">
+                <div class="timeline__card-header" onclick="toggleTimeline({{ stage.id }})">
+                    <div class="timeline__card-icon">{{ stage.icon }}</div>
+                    <div class="timeline__card-info">
+                        <h3 class="timeline__card-title">{{ stage.title }}</h3>
+                        <span class="timeline__card-date">{{ stage.date_range }}</span>
+                    </div>
+                    <div class="timeline__card-toggle">
+                        <svg class="timeline__chevron" viewBox="0 0 24 24" width="24" height="24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                </div>
+                <div class="timeline__card-body" id="timeline-body-{{ stage.id }}">
+                    <p class="timeline__summary">{{ stage.summary }}</p>
+                    <ul class="timeline__details">
+                        {% for detail in stage.details %}
+                        <li>{{ detail }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn--accent timeline__deep-dive" onclick="askDeepDive('{{ stage.deep_dive | e }}')">
+                        Ask Claude for more ↗
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: QUIZ                              -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section" id="section-quiz">
+    <div class="section__header">
+        <h2 class="section__title">Quiz Yourself</h2>
+        <p class="section__desc">Test your knowledge of electoral systems with 5 challenging questions.</p>
+    </div>
+
+    <div class="quiz" id="quiz-container">
+        <div class="quiz__progress">
+            <div class="quiz__progress-bar" id="quiz-progress-bar"></div>
+        </div>
+        <div class="quiz__counter" id="quiz-counter">Question 1 of 5</div>
+
+        <div class="quiz__question-card" id="quiz-card">
+            <!-- Populated by JS -->
+        </div>
+
+        <div class="quiz__results hidden" id="quiz-results">
+            <div class="quiz__results-circle" id="quiz-results-circle">
+                <svg viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" class="quiz__results-bg"/>
+                    <circle cx="60" cy="60" r="54" class="quiz__results-fill" id="quiz-results-fill"/>
+                </svg>
+                <span class="quiz__results-score" id="quiz-results-score">0/5</span>
+            </div>
+            <h3 class="quiz__results-title" id="quiz-results-title">Great Job!</h3>
+            <p class="quiz__results-msg" id="quiz-results-msg"></p>
+            <div class="quiz__results-actions">
+                <button class="btn btn--primary" onclick="restartQuiz()">Try Again</button>
+                <button class="btn btn--accent" onclick="getStudyTips()">Get Study Tips from Claude ↗</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: GLOSSARY                          -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section" id="section-glossary">
+    <div class="section__header">
+        <h2 class="section__title">Election Glossary</h2>
+        <p class="section__desc">Search and explore 15 essential election terms.</p>
+    </div>
+
+    <div class="glossary__search-wrap">
+        <div class="glossary__search">
+            <svg class="glossary__search-icon" viewBox="0 0 24 24" width="20" height="20"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="text" class="glossary__search-input" id="glossary-search" placeholder="Search terms…" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="glossary__grid" id="glossary-grid">
+        {% for item in glossary %}
+        <div class="glossary__card" data-term="{{ item.term | lower }}">
+            <div class="glossary__card-letter">{{ item.term[0] }}</div>
+            <h3 class="glossary__card-term">{{ item.term }}</h3>
+            <p class="glossary__card-def">{{ item.definition }}</p>
+            <button class="btn btn--small btn--accent" onclick="exploreGlossary('{{ item.term }}')">
+                Explore in depth ↗
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="glossary__empty hidden" id="glossary-empty">
+        <p>No terms match your search. Try a different keyword.</p>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: WORLD COMPARE                     -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section" id="section-compare">
+    <div class="section__header">
+        <h2 class="section__title">World Compare</h2>
+        <p class="section__desc">Compare electoral systems across four major democracies. Click any card for a deep dive.</p>
+    </div>
+
+    <div class="compare__grid" id="compare-grid">
+        {% for c in compare %}
+        <div class="compare__card" onclick="compareDeepDive('{{ c.deep_dive | e }}')">
+            <div class="compare__card-flag">{{ c.flag }}</div>
+            <h3 class="compare__card-country">{{ c.country }}</h3>
+            <div class="compare__card-system">{{ c.system }}</div>
+
+            <div class="compare__card-table">
+                <div class="compare__row">
+                    <span class="compare__label">Electoral System</span>
+                    <span class="compare__value">{{ c.electoral_system }}</span>
+                </div>
+                <div class="compare__row">
+                    <span class="compare__label">Voting Method</span>
+                    <span class="compare__value">{{ c.voting_method }}</span>
+                </div>
+                <div class="compare__row">
+                    <span class="compare__label">Term Length</span>
+                    <span class="compare__value">{{ c.term_length }}</span>
+                </div>
+                <div class="compare__row">
+                    <span class="compare__label">Voter Turnout</span>
+                    <span class="compare__value compare__value--highlight">{{ c.turnout }}</span>
+                </div>
+            </div>
+
+            <div class="compare__card-fact">
+                <span class="compare__fact-icon">💡</span>
+                <span>{{ c.fun_fact }}</span>
+            </div>
+
+            <div class="compare__card-cta">
+                Click for deep dive ↗
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION: ASK ANYTHING                      -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="section" id="section-ask">
+    <div class="section__header">
+        <h2 class="section__title">Ask Anything</h2>
+        <p class="section__desc">Curated prompts to explore election topics in depth. Click any card to start a conversation.</p>
+    </div>
+
+    <div class="ask__grid" id="ask-grid">
+        {% for p in prompts %}
+        <div class="ask__card" onclick="sendAskPrompt('{{ p.prompt | e }}')">
+            <div class="ask__card-icon">{{ p.icon }}</div>
+            <h3 class="ask__card-title">{{ p.title }}</h3>
+            <p class="ask__card-prompt">{{ p.prompt[:80] }}…</p>
+            <div class="ask__card-arrow">→</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="ask__custom">
+        <h3 class="ask__custom-title">Or ask your own question</h3>
+        <div class="ask__custom-input-wrap">
+            <input type="text" class="ask__custom-input" id="custom-prompt-input" placeholder="Type your election question here…" autocomplete="off">
+            <button class="btn btn--primary ask__custom-btn" onclick="sendCustomPrompt()">Ask →</button>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- FOOTER                                     -->
+<!-- ═══════════════════════════════════════════ -->
+<footer class="footer">
+    <div class="footer__content">
+        <div class="footer__brand">
+            <span class="footer__logo">🗳️</span>
+            <span class="footer__name">Election Process Assistant</span>
+        </div>
+        <p class="footer__copy">Built with Python & Flask · Interactive AI-Powered Guide to Democracy</p>
+    </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL for Claude responses                 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal__header">
+            <h3 class="modal__title" id="modal-title">Deep Dive</h3>
+            <button class="modal__close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal__body" id="modal-body">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal__footer">
+            <button class="btn btn--primary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
